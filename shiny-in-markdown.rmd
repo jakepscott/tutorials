@@ -1,0 +1,84 @@
+---
+title: "Shiny in Markdown"
+author: "Jake Scott"
+date: "3/111/2022"
+runtime: shiny
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.align="center")
+```
+
+```{r Load Libs and Data}
+
+# Loading Libs and such ------------------------------------------------------------
+library(glue)
+library(ggrepel)
+library(janitor)
+library(ggiraph)
+library(shiny)
+library(shinyWidgets)
+library(tidyverse)
+library(readr)
+library(here)
+library(plotly)
+library(patchwork)
+library(here)
+library(shinycssloaders)
+library(shinyjs)
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+
+# Loading Data ------------------------------------------------------------
+
+```
+
+
+
+# **Shiny app**
+```{r}
+shinyApp(
+
+  ui = fluidPage(
+    useShinyjs(),
+    fluidRow(
+      column(width=2,
+             selectInput("input1", "How to input1?",
+                choices = c("None"="none",
+                            "Option 1"="opt1"))),
+      column(width=2,
+             selectInput("input2", "Which input2?",
+                choices = c("Option 1"="opt1",
+                            "Option 2" = "opt2",
+                            "Option 3" = "opt3"))),
+      column(width=2,
+             sliderInput("min", "Minimum:", min = 0, max = 100, step = 5, value = 22)),
+    (withSpinner(plotOutput("input1_plot")))
+  )),
+
+  server = function(input, output) {
+     observe({
+        if (input$input1=="rule_model") {
+            shinyjs::show("input2")
+        } else{
+            shinyjs::hide("input2")
+        }
+    })
+    
+    
+    output$input1_plot = renderPlot({
+      input1_function(data = full_data,
+                     input1_method = input$input1,
+                     input2 = input$input2, 
+                     minimum = input$min)
+    })
+  },
+
+  options = list(height = 500)
+)
+```
