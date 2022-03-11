@@ -1,0 +1,37 @@
+---
+title: "Match"
+author: "Jake Scott"
+date: "1/4/2022"
+output: pdf_document
+params:
+  var1: Pie
+  var2: Apple
+  date: !r as.Date("2016-10-01")
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, echo=F, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F)
+library(here)
+source(here("00_load-data.R"))
+# Function to beautify numbers in report
+comma <- function(x) format(x, digits = 2, big.mark = ",")
+
+```
+
+```{r Keep selected variables}
+# Only keep var1 and var2
+df_clean <- df %>% 
+  filter(name %in% c(params$var1, params$var2)) 
+```
+
+```{r var2 rows}
+ad <- df_clean %>% 
+  filter(name == params$var2,
+         date == as.Date(per_before))
+
+total_in_var2 <- nrow(ad)
+```
+
+There are `r comma(total_in_var2)` rows in the data containing `r params$var2` as of `r date`
