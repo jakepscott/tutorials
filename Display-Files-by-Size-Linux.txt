@@ -1,0 +1,1 @@
+du --block-size=GB --max-depth=1 | sort -rn

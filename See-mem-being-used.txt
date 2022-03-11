@@ -1,0 +1,1 @@
+srun -O --jobid=15247548 jobstat
