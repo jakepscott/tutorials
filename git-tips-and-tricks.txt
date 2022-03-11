@@ -1,0 +1,113 @@
+What do I do if… 
+On some branch, I made some changes in a file I want to keep, and some changes I don’t? 
+•	For example, imagine you add new labels to a plot want to keep those new labels. However, at the same time, you a line from a plot, but don’t want that to be merged into the production branch. 
+o	On the one hand, you could merge the changes, but  then the line will be missing in the production directory
+o	On the other hand, you could avoid making the merge. This means the line will still be there, but it also means that neither would the label changes
+•	Not a solid way to do this
+•	For now the solution is the following  
+o	Determine which would be easier:  
+	Merging over with all the changes, including the one-off change, and then manually undoing the one-off change in the production branch 
+	Not merging the file at all and adding the permanent changes in the production branch 
+o	Once you have decided which is easier and taken that action, commit the change with a message that contains the name of the file changed and indicates you made the changes due to a one-off situation 
+I want to see what I changed between the last commit and the current state of my files? 
+•	gitk& 
+•	This is like a GUI for git log, and allows you to see all of your commits as well as the differences between them 
+•	Important in this context is that it lets you see the differences between how your files look right now and how they looked when you last committed  
+I want to go back to a previous commit? 
+•	git reset --hard <HASH>  
+•	This will bring the repo back to where it was during the commit identified by the hash.  
+•	Caution: Because this brings you back to the state the repo was in at the time of the specified commit, any changes that were made after that commit will be deleted 
+•	This is not necessarily irreversible, at least not permanently (see git reflog below), but it can be problematic
+I ran git reset --hard <HASH> when I should not have? 
+•	This a is scenario where you are on commit A, make a change, and make another commit called commit B. You then use git reset to go back to commit A, but then realize you want the change you made in commit B back 
+•	To do this, first run  
+•	git reflog 
+•	This shows an ordered list of all the commits that HEAD has pointed to. In short, it stores (for up to 90 days) essentially all commits, even ones that you left using reset 
+•	After running git reflog, find the hash of the commit you want to go back to (in our example we’d find the hash for commit B) 
+•	Then simply run 
+•	git reset --hard <HASH> 
+•	Where <HASH>, in our example, is the hash for commit B 
+I want to reverse a push? 
+•	First, reset the remote repo using 
+•	git push -f origin last_known_good_commit:branch_name 
+•	Then, if you want to bring the local repo in line with the remote repo, run 
+•	git reset --hard <HASH>  
+•	Where <HASH> is the hash for the commit you want to go back to 
+I want to clone the repo into a personal folder? 
+•	git clone <link from Github> <name_of_directory_you_want_to_create) 
+I want to create a new branch? 
+•	Go to local main branch 
+•	git checkout main 
+•	Run git branch <NewName> to create the branch 
+•	Run git checkout <NewName> to go to new branch 
+•	Run git push –u origin <NewName> to push this new branch up to the remote repository sand connect it to the local version 
+•	Now we have NewName on both the local machine, and it is paired with the remote repo of the same name 
+•	Git checkout -b also works
+I want to delete a branch? 
+•	To delete the remote branch run git push origin --delete <branchname> 
+•	To delete the local branch 
+•	First you must leave the branch you are about to delete, so run git checkout main 
+•	Then you can delete by running git branch -d <branch> 
+I want to go back to a previous version of a specific file? 
+•	For example, say you make a set of changes to the code, one of which is a change to the line color, and then you commit. Then, you realize you actually want the line color to go back to what it was previously, but you don’t want to overwrite all the changes you made to other files (which a git reset would do).  
+•	In order to go back to a previous version of a specific file, run 
+•	git checkout <hash of commit to go back to> <filename> 
+I want to checkout to another branch, but have untracked changes in the branch I am in? 
+•	If you are in branch A, have made changes (but not committed them) and then try to git checkout to branch B, git will not let you. Git wants you to commit the changes first. If you are ready to commit them or not sure if you want to, but still need to go to branch B, you can run git stash.  
+•	git stash stores those untracked changes. You can then checkout to branch B, do what you need to do, and come back to branch A 
+•	Once back on branch A, those untracked changes will not be there right away. To bring them back you need to run git stash pop 
+•	For example: 
+•	If we have a document in branch A with ABC and we make it ABCD, that will be an untracked change. Normally we cannot go to branch B without committing this change. But with git stash we can “stash” that change, jump to branch B, do what we need to do, and then jump back to branch A. At first we would only see ABC, the untracked change seems gone. But all you need to do is run git stash pop, and once again you’d have ABCD, where D is an untracked change 
+I made a commit and did not mean to, but don’t want to lose the work I did? 
+•	What if I was on commit A, made a change, committed that change as commit B, and want to undo that last commit but want to keep the change I made (presumably to later commit, perhaps with some modifications)?  
+•	Simply run git reset HEAD^ (link) 
+•	This undoes the commit and unstages the change, but keeps the change itself intact.  
+•	Note: HEAD^  indicates the current head’s first parent (basically, the previous commit) 
+I want to delete a tag? 
+•	To delete a tag on a local repo, run git tag -d <tag_name> 
+o	So run something like git tag -d tag-name 
+•	To delete the tag on a remote repo, run git push -d origin<tag_name> 
+o	So run something like git push -d origin tag-name 
+I want to add a tag to a previous commit? 
+•	All you have to do is run git tag -a <Tag> <HASH> -m "Message" 
+o	Where <Tag> is the tag you want to add, <HASH> is the hash of the commit you are adding it to (easy to find in Github using history), and where message is just a message you have to add, you can make it the same as the tag to be safe 
+o	NOTE: To then push this new tag to the remo repo,run either git push origin --tags (this pushes all tags on the local repo but not on the remote one) or git push origin <tagname>, which will push just that tag. See here for more details 
+I want to undo a git add for a file? 
+•	Git reset <file> 
+•	This removes the file from the staging area, but keeps any recent untracked modifications you have made.  
+Useful tips, tricks, and git facts 
+Head versus Main  
+•	HEAD is a pointer/label to the most recent commit of the branch you are currently on.  
+•	“Head points to the tip of the currently checked out branch.” (Link, link) 
+•	“The HEAD in Git is the pointer to the current branch reference, which is in turn a pointer to the last commit you made or the last commit that was checked out into your working directory. That also means it will be the parent of the next commit you do. It's generally simplest to think of it as HEAD is the snapshot of your last commit.” (Link) 
+•	Main is the default branch created when you initialized a git repository (e.g. git init). 
+What is a branch? 
+•	Here is an excellent explanation that I attempt to recreate below 
+•	Recall that git saves data in the form of a series of “snapshots’ we call commits  
+•	A branch is simply a movable “pointer” to one of those commits 
+•	The default branch name is “main.” Each time you commit, the main branch pointer moves forward to that newest commit.  So if you “go to the main branch” what you are really doing is going to where main is pointing, which is usually just the most recent commit (assuming you’ve not added any new branches). 
+•	What happens if we create a new branch? It just creates a new pointer we can move around. 
+o	An example will help clarify: Let’s say we have, in order of oldest to newest, 3 commits, A, B, and C. The main branch will be pointing at commit C.  
+o	If we add a new branch, say, “test”, it will initially also just be pointing at C. 
+o	How does git know which branch we are on? There is a special pointer called “HEAD”, which points to the branch you are on. Almost like a “super pointer”.  
+o	If you just created the test branch with git branch test, HEAD will still point at main. You would need to use git checkout test to move HEAD to test 
+o	Let’s say you do that and are now on test. What happens if you make a new commit called D? Well, test will be pointing at this newest commit D, while main will remain pointing at the previous commit C.  
+o	So if you use git checkout main to go to the main branch, you really are just bringing the HEAD pointer to wherever main is pointing, which in this case is commit C.  
+	If you were then to make changes there and commit them in commit E, there would now be diverging histories. Test would be pointing at D and have the history A[Symbol]B[Symbol]C[Symbol]D whereas main would be pointing at E and have the history A[Symbol]B[Symbol]C[Symbol]E.  
+	You could still switch between these branches, it would just take more work to merge them in the end 
+What does adding the --squash option do when merging? 
+•	Both git merge --squash --no-commit <BRANCH-NAME>  and git merge --no-commit --no-ff <BRANCH-NAME> do the following: 
+•	Bring into skeleton all the changes made in BRANCH-NAME 
+•	Add all changes added to staging area (as if you had run git add) but do not commit these changes 
+•	git merge --squash --no-commit <BRANCH-NAME>  
+•	Key Distinction: The commit messages that were made in BRANCH-NAME will not be carried over when squash is used, instead the only commit will be the one you eventually make 
+•	It is as if instead of merging you had just made all the changes in the production branch that you had made in BRANCH-NAME and then committed at once 
+•	git merge --no-commit --no-ff <BRANCH-NAME> 
+•	Key Distinction: The commit messages made in BRANCH-NAME will be carried over, and will become part of the git log for the production branch 
+•	So if you make a temporary change in BRANCH-NAME that does not get ported over to the main brach, there will still be the commit message in git log for main from when that change was made in the BRANCH-NAME branch, which could get messy over time 
+ 
+What if I just need some refreshing on Git in general? 
+•	Here is an excellent introduction/review of the key aspects of Git, explained in an easy-to-understand way 
+•	This video, while long, is an extremely good look at Git internals and changed my (Jake S.) whole perspective on it 
+•	And ultimately, there is no substitute to just reading this book. While very long, it does the job 
+
